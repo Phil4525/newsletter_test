@@ -45,7 +45,7 @@ class Users
     private $is_valid = false;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Categories::class, mappedBy="users")
+     * @ORM\ManyToMany(targetEntity=Categories::class, inversedBy="users")
      */
     private $categories;
 
