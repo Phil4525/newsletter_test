@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\Newsletters\NewslettersRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -85,8 +86,81 @@ class NewslettersController extends AbstractController
         $newsletter = new Newsletters();
         $form = $this->createForm(NewslettersType::class, $newsletter);
 
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($newsletter);
+            $em->flush();
+
+            return $this->redirectToRoute('newsletters_list');
+        }
+
         return $this->render('newsletters/prepare.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/list", name="list")
+     */
+    public function list(NewslettersRepository $newsletters): Response
+    {
+        return $this->render('newsletters/list.html.twig', [
+            'newsletters' => $newsletters->findAll()
+        ]);
+    }
+
+     /**
+     * @Route("/send/{id}", name="send")
+     */
+    public function send(Newsletters $newsletter, MailerInterface $mailer): Response
+    {
+        $users = $newsletter->getCategories()->getUsers();
+
+        foreach($users as $user) {
+            if($user->getIsvalid()) {
+                $email = (new TemplatedEmail())
+                    ->from('newsletter@site.fr')
+                    ->to($user->getEmail())
+                    ->subject($newsletter->getName())
+                    ->htmlTemplate('emails/newsletter.html.twig')
+                    ->context(compact('newsletter', 'user'))
+                ;
+                $mailer->send($email);
+            }
+        }
+
+        $newsletter->setIsSent(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($newsletter);
+        $em->flush();
+
+        return $this->redirectToRoute('newsletters_list');
+    }
+
+    /**
+     * @Route("/unsubscribe/{id}/{newsletter}/{token}", name="unsubscribe")
+     */
+    public function unsubscribe(Users $user, Newsletters $newsletter, $token): Response
+    {
+        if($user->getValidationToken() != $token) {
+            throw $this->createNotFoundException('Page non trouvée');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        if(count($user->getCategories()) > 1) {
+            $user->removeCategory($newsletter->getCategories());
+            $em->persist($user);
+        } else {
+            $em->remove($user);
+        }
+        $em->flush();
+
+        $this->addFlash('message', 'Newsletter supprimée');
+
+        return $this->redirectToRoute('app_home');
     }
 }

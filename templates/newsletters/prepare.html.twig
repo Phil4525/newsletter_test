@@ -2,11 +2,12 @@
 
 {% block title %}Creation de Newsletter{% endblock %}
 
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
 {% block body %}
     <h1>Ecrivez votre newsletter</h1>
     {{form_start(form)}}
         {{form_row(form.name)}}
-        {{form_row(form.content)}}
         {{form_row(form.categories)}}
+        {{form_row(form.content)}}
     {{form_end(form)}}
 {% endblock %}
