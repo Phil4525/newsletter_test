@@ -1,0 +1,7 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{{ form_start(form) }}
+    {{form_row(form.name)}}
+    {{form_row(form.categories)}}
+    {{form_row(form.content)}}
+{{ form_end(form) }}

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edition de newsletter{% endblock %}
+
+{% block body %}
+    <h1>Edition de newsletter</h1>
+
+    {{ include('newsletters/_form.html.twig') }}
+
+    {{ include('newsletters/_delete_form.html.twig') }}
+
+    <a href="{{ path('newsletters_list') }}">Retour à la liste</a>
+{% endblock %}

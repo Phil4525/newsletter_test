@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création de Newsletter{% endblock %}
+
+
+{% block body %}
+    <h1>Créez votre newsletter</h1>
+
+    {{ include('newsletters/_form.html.twig') }}
+
+    <a href="{{ path('newsletters_list') }}">Retour à la liste</a>
+{% endblock %}

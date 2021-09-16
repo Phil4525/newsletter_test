@@ -2,7 +2,10 @@
 
 {% block title %}Hello NewslettersController!{% endblock %}
 
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 {% block body %}
     <h1>Choisissez vos newsletters</h1>
+    
     {{form(form)}}
 {% endblock %}
